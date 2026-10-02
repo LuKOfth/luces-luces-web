@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#20203d">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Luces, luces — un pequeño paseo pixel art para encender la noche.">
+  <title>Luces, luces ✦</title>
+  <style>
+:root{--wine:#532b48;--midnight:#21223f;--cream:#f7e5cf;--gold:#f9d58e;--lavender:#c9a4c4;--bg:#101425;--ink:#e3d1c3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;height:100dvh;overflow:hidden;margin:0;background:#161a2a;color:var(--cream);font-family:ui-monospace,Menlo,Monaco,"Courier New",monospace;user-select:none;-webkit-user-select:none}
+.game-shell{position:relative;width:100%;height:100%;height:100dvh;overflow:hidden;isolation:isolate;background:linear-gradient(#292747,#63415a 60%,#9b626a)}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none;outline:none}
+.grain{pointer-events:none;position:absolute;inset:0;z-index:2;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 90 90' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hud{position:absolute;z-index:4;display:flex;align-items:flex-start;justify-content:space-between;inset:0 0 auto;height:auto;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 0;pointer-events:none}
+.score-pill{display:flex;align-items:center;gap:10px;min-width:86px;background:#29233cce;border:1px solid #fae0a03c;padding:10px 12px;border-radius:15px;box-shadow:0 8px 30px #170e2940}
+.score-pill .hud-icon{color:#ffe2a3;font-size:21px}
+.score-pill small,.end-stat small{display:block;letter-spacing:1.8px;font-size:8px;color:#d8b9c5}.score-pill strong{display:block;line-height:1.05;font-size:21px;letter-spacing:1px}
+.center-hud{text-align:center;padding-top:5px;flex:1}.clock{display:block;font-size:18px;font-weight:800;color:#ffdeb7;letter-spacing:1px;text-shadow:0 2px 5px #372539}.level{display:inline-block;font-size:9px;letter-spacing:2px;color:#f6e2d9;margin-top:4px}
+.circle-btn{pointer-events:auto;color:#f4dec9;background:#29233cce;border:1px solid #fae0a04d;width:45px;height:45px;border-radius:14px;font:800 23px ui-monospace,monospace;cursor:pointer;touch-action:manipulation}
+.hud.hidden,.hidden{display:none!important}
+.screen-card{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:min(90vw,414px);background:linear-gradient(160deg,#29283deF,#322740f4);border:1px solid #e7bf9e55;border-radius:23px;box-shadow:0 20px 72px #0e1022a0,0 0 0 6px #f0d5c00a;padding:31px 27px;text-align:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.menu-card{padding-top:34px}.kicker{font-size:9px;letter-spacing:2.25px;font-weight:700;color:#eabf9f;margin:6px 0 12px}.menu-card h1{margin:0;font-family:Georgia,'Times New Roman',serif;font-weight:500;font-size:clamp(55px,12vw,75px);line-height:.94;letter-spacing:-3.8px;color:#fbe6ce;text-shadow:0 4px 20px #05060a44}.menu-card h1 em{font-weight:normal;color:#ffc882}.tagline{font:italic 16px Georgia,serif;color:#ddc3c3;margin:16px 0 20px}
+.logo-lamp{position:relative;width:63px;height:74px;margin:0 auto 12px;filter:drop-shadow(0 0 13px #ffd48a45)}.logo-head{position:absolute;background:#eed4a0;border:5px solid #6c4b66;left:16px;top:11px;width:31px;height:25px;clip-path:polygon(14% 0,86% 0,100% 100%,0 100%)}.logo-head:before{content:'';position:absolute;inset:6px;background:#ffe5a2}.logo-pole{position:absolute;width:7px;height:40px;background:#a8888b;top:33px;left:28px;box-shadow:-3px 0 #4b4059,8px 38px 0 -3px #705572}.logo-light{position:absolute;top:5px;left:8px;width:47px;height:45px;border-radius:50%;background:#ffde91;filter:blur(15px);opacity:.64}
+.instruction{display:flex;align-items:center;text-align:left;gap:12px;background:#fff3e208;border:1px solid #e9cdbb38;border-radius:14px;padding:14px;margin:20px 0 18px;color:#f6dccc;font-size:11px;line-height:1.7}.tap-symbol{display:inline-flex;align-items:center;justify-content:center;background:#dba87918;width:37px;height:37px;flex:0 0 37px;border-radius:10px;font-size:21px}
+.primary-btn{border:0;border-radius:13px;background:#f2c783;color:#37263c;padding:16px 18px;min-height:53px;width:100%;font:900 13px ui-monospace,monospace;letter-spacing:1.2px;cursor:pointer;box-shadow:0 5px 0 #b18c71,0 12px 20px #170d1d45;transition:transform .13s,filter .13s;touch-action:manipulation}.primary-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b18c71}.primary-btn span{margin-left:10px;font-size:18px}
+.subtle{font-size:10px;color:#c4b4c1;margin:19px 0 0}.menu-footer{display:flex;align-items:center;justify-content:space-between;margin-top:19px;color:#a99aa9;letter-spacing:1px;font-size:9px}.text-btn{color:#efcdaf;background:none;border:0;font:inherit;font-size:10px;letter-spacing:1px;cursor:pointer;padding:7px 0;touch-action:manipulation}.text-btn.alt{margin-top:14px;color:#efdbca}
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}
+.preview-grid button{padding:12px 4px;font:bold 12px ui-monospace,monospace;border:1px solid #d4adc17c;border-radius:11px;background:#49324a;color:#ffe7d1;cursor:pointer;min-height:43px;touch-action:manipulation}
+.preview-grid button:active{background:#80516a}
+.preview-small{font-size:10px;line-height:1.5;color:#e4c2ca}.overlay-card h2{font-family:Georgia,serif;font-size:clamp(38px,10vw,55px);line-height:1;letter-spacing:-2px;font-weight:normal;color:#ffe3bf;margin:14px 0}.overlay-card>p:not(.kicker){font:italic 16px Georgia,serif;color:#d7c2d1;line-height:1.5;margin-bottom:25px}.end-stat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 14px}.end-stat>div{border:1px solid #eed1bb44;background:#ffffff0d;border-radius:12px;padding:12px 5px}.end-stat b{font-size:24px;color:#ffcf8e;display:block;margin-top:5px}
+.toast{z-index:4;position:absolute;left:50%;top:27%;transform:translate(-50%,-15px);pointer-events:none;white-space:nowrap;color:#ffedc1;font:bold 13px ui-monospace,monospace;letter-spacing:1.2px;text-shadow:0 2px 5px #251a2e;opacity:0;transition:opacity .2s,transform .2s}.toast.visible{opacity:1;transform:translate(-50%,0)}
+.bottom-hint{position:absolute;z-index:3;bottom:calc(env(safe-area-inset-bottom, 0px) + 24px);left:0;right:0;text-align:center;pointer-events:none;font-size:9px;letter-spacing:2px;color:#fce9d3b9;text-shadow:0 2px 7px #2c203a}.bottom-hint span{color:#fbe29c}
+@media(max-height:670px){.menu-card{padding:16px 23px}.logo-lamp{transform:scale(.7);margin:-8px auto -1px}.menu-card h1{font-size:52px}.tagline{margin:8px 0}.instruction{margin:12px 0;padding:10px}.menu-footer{margin-top:10px}.subtle{margin-top:12px}.screen-card{max-height:92dvh;overflow:auto}.hud{padding-top:calc(env(safe-area-inset-top,0px) + 10px)}}
+@media(min-width:800px){.game-shell{max-width:640px;margin:auto;box-shadow:0 0 90px #000a}.bottom-hint{bottom:30px}}
+@media(prefers-reduced-motion:reduce){.primary-btn,.toast{transition:none}}
+
+</style>
+</head>
+<body>
+  <main id="gameShell" class="game-shell">
+    <canvas id="game" width="400" height="680" aria-label="Juego de farolas de calle. Toca las farolas para encenderlas antes de pasarlas." role="img"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <header class="hud" id="hud" aria-label="Marcador de la partida">
+      <div class="score-pill"><span class="hud-icon">✦</span><div><small>LUCES</small><strong id="score">0</strong></div></div>
+      <div class="center-hud"><span id="clock" class="clock">18:30</span><span id="levelTag" class="level">CALLE 01</span></div>
+      <button class="circle-btn" id="pauseButton" type="button" aria-label="Pausar partida">Ⅱ</button>
+    </header>
+    <div class="toast" id="feedback" aria-live="polite"></div>
+    <section class="screen-card menu-card" id="startScreen" aria-labelledby="gameTitle">
+      <div class="logo-lamp" aria-hidden="true"><div class="logo-light"></div><div class="logo-head"></div><div class="logo-pole"></div></div>
+      <p class="kicker">UNA PEQUEÑA HISTORIA NOCTURNA</p>
+      <h1 id="gameTitle">Luces,<br><em>luces.</em></h1>
+      <p class="tagline">Un paseo para encender la noche.</p>
+      <div class="instruction"><span class="tap-symbol">☝</span><span>Toca cada farola antes de dejarla atrás.<br>Una luz olvidada y termina el paseo.</span></div>
+      <button type="button" id="startButton" class="primary-btn">COMENZAR PASEO <span>↗</span></button>
+      <p class="subtle" id="bestIntro">Tu noche comienza aquí</p>
+      <button id="previewButton" class="text-btn alt" type="button">✦ VER LAS CALLES ESPECIALES (PRUEBA)</button>
+      <div class="menu-footer"><button id="menuSound" class="text-btn" type="button">♫ Sonido: sí</button><span>PIXEL WALK · 01</span></div>
+    </section>
+    <section class="screen-card overlay-card hidden" id="previewScreen" aria-labelledby="previewHeading">
+      <p class="kicker">LO QUE ESCONDE LA NOCHE</p>
+      <h2 id="previewHeading">Elige una calle.</h2>
+      <p class="preview-small">Prueba cómo cambian las luces y el paisaje. Estas partidas no suman al récord.</p>
+      <div class="preview-grid">
+        <button id="preview30" type="button">30</button>
+        <button id="preview40" type="button">40</button>
+        <button id="preview50" type="button">50</button>
+        <button id="preview60" type="button">60</button>
+        <button id="preview70" type="button">70</button>
+        <button id="preview80" type="button">80</button>
+        <button id="preview100" type="button">100</button>
+        <button id="preview120" type="button">120</button>
+        <button id="preview200" type="button">200</button>
+      </div>
+      <button id="previewBack" type="button" class="text-btn alt">← Volver al inicio</button>
+    </section>
+    <section class="screen-card overlay-card hidden" id="pauseScreen" aria-labelledby="pauseHeading">
+      <p class="kicker">UN MOMENTO BAJO LAS ESTRELLAS</p><h2 id="pauseHeading">Una pausa.</h2>
+      <p>Las farolas te esperan.</p>
+      <button type="button" id="resumeButton" class="primary-btn">SEGUIR CAMINANDO <span>→</span></button>
+      <button type="button" id="restartFromPause" class="text-btn alt">Empezar de nuevo</button>
+    </section>
+    <section class="screen-card overlay-card hidden" id="overScreen" aria-labelledby="overHeading">
+      <p class="kicker">LA CALLE SE QUEDÓ A OSCURAS</p><h2 id="overHeading">Una luz<br>olvidada.</h2>
+      <div class="end-stat"><div><small>ENCENDIDAS</small><b id="finalScore">0</b></div><div><small>MEJOR PASEO</small><b id="bestScore">0</b></div></div>
+      <p>La noche siempre ofrece otra oportunidad.</p>
+      <button type="button" id="againButton" class="primary-btn">VOLVER A PASEAR <span>↗</span></button>
+      <button type="button" id="mainMenuButton" class="text-btn alt">Volver al inicio</button>
+    </section>
+    <footer class="bottom-hint" id="bottomHint">TOCA LAS FAROLAS <span>✦</span> DEJA LA CALLE BRILLAR</footer>
+  </main>
+  <script>
+'use strict';
+(() => {
+  const el = (id) => document.getElementById(id);
+  const canvas = el('game');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  ctx.imageSmoothingEnabled = false;
+  const shell = el('gameShell');
+  const screens = {menu:el('startScreen'), preview:el('previewScreen'), pause:el('pauseScreen'), over:el('overScreen')};
+  const hud = el('hud'), bottomHint = el('bottomHint');
+  const scoreLabel = el('score'), levelTag = el('levelTag'), clockLabel = el('clock');
+  const feedback = el('feedback');
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const fract = (n) => n-Math.floor(n);
+  const hash = (n) => fract(Math.sin(n*127.1+20.72)*43758.5453123);
+  const rgba = (hex,a) => {
+    const n=parseInt(hex.slice(1),16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+  };
+  const safeStorage = {
+    get(key,fallback){ try {const x=localStorage.getItem(key);return x===null?fallback:x;} catch {return fallback;} },
+    set(key,value){try{localStorage.setItem(key,String(value));}catch{}}
+  };
+  const WORLD = {
+    state:'menu',W:360,H:740,ground:520,playerX:105,camera:0,
+    lamps:[],particles:[],sparks:[],score:0,level:1,best:Math.max(0,parseInt(safeStorage.get('luces-luces-best','0'),10)||0),
+    nextPost:0,walk:0,visualTime:0,lastFrame:0,speed:0,musicAt:0,
+    sound:safeStorage.get('luces-luces-sound','yes')==='yes',toastUntil:0,toastText:'',missed:null,
+    pausedAt:0,lastTapAt:0,postCount:0,lampSerial:0,shadowPressure:0,demo:false
+  };
+  const C = {
+    outline:'#29263f',paint:'#59455b',lampPost:'#59475e',metal:'#987e89',gold:'#ffe3a0',
+    window:'#ffd9a2',brick:'#8f6c7c',pavement:'#65586c',asphalt:'#35354b',coat:'#bb8290',
+    scarf:'#edc49b',skin:'#e7ad93',boot:'#282b42'
+  };
+  let audio=null;
+  let mutedNotice=false;
+  const ensureAudio=()=>{
+    if(!WORLD.sound)return null;
+    try {
+      if(!audio)audio=new (window.AudioContext||window.webkitAudioContext)();
+      if(audio.state==='suspended')audio.resume().catch(()=>{});
+      return audio;
+    } catch {return null;}
+  };
+  const tone=(freq=660,length=.38,gain=.042,shape='sine',delay=0)=>{
+    const ac=ensureAudio();if(!ac)return;
+    const start=ac.currentTime+delay;
+    const osc=ac.createOscillator(),volume=ac.createGain();
+    osc.type=shape;osc.frequency.setValueAtTime(freq,start);
+    volume.gain.setValueAtTime(.0001,start);
+    volume.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),start+.018);
+    volume.gain.exponentialRampToValueAtTime(.0001,start+length);
+    osc.connect(volume);volume.connect(ac.destination);
+    osc.start(start);osc.stop(start+length+.03);
+  };
+  function soundOnLight(){
+    const stage=sceneStage();
+    if(['abandoned','madness','cemetery','pursuit'].includes(stage)){
+      tone(392,.48,.032,'sine');tone(415.3,.67,.020,'triangle',.09);
+    }else{tone(587,.49,.049,'sine');tone(880,.63,.031,'triangle',.055);}
+  }
+  function soundOnLevel(){tone(523,.31,.036,'sine');tone(659,.32,.035,'sine',.11);tone(784,.5,.042,'sine',.21);}
+  function soundOnMiss(){tone(392,.39,.037,'triangle');tone(293.66,.76,.029,'sine',.23);}
+  function ambient(ms){
+    if(!WORLD.sound||WORLD.state!=='playing'||ms<WORLD.musicAt)return;
+    WORLD.musicAt=ms+2900;
+    const stage=sceneStage();
+    if(['abandoned','madness','cemetery','pursuit'].includes(stage)){
+      const notes=[146.83,164.81,138.59,130.81,155.56,146.83,110,123.47];
+      const ix=Math.floor(WORLD.visualTime/2.9)%notes.length;
+      tone(notes[ix],1.8,.012,'sine');
+      if(stage==='pursuit')tone(notes[ix]*1.48,1.4,.005,'triangle',.25);
+    }else{
+      const notes=[392,440,349.23,329.63,293.66,349.23,392,261.63];
+      const ix=Math.floor(WORLD.visualTime/2.9)%notes.length;
+      tone(notes[ix],1.3,.009,'sine');
+    }
+  }
+  const haptic=()=>{
+    try{if(window.LucesAndroid&&LucesAndroid.vibrate)LucesAndroid.vibrate();else if(navigator.vibrate)navigator.vibrate(12)}catch{}
+  };
+  const rect=(x,y,w,h,fill)=>{ctx.fillStyle=fill;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
+  function line(x1,y1,x2,y2,width,color){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(Math.round(x1),Math.round(y1));ctx.lineTo(Math.round(x2),Math.round(y2));ctx.stroke();}
+  function circle(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+  function resize(){
+    const r=shell.getBoundingClientRect();
+    const logical=Math.round(clamp(r.width/1.18,320,540));
+    const w=logical,h=Math.round(logical*(r.height/Math.max(1,r.width)));
+    WORLD.W=w;WORLD.H=h;
+    WORLD.ground=Math.round(h*.73);
+    WORLD.playerX=Math.round(Math.min(w*.28,140));
+    canvas.width=w;canvas.height=h;ctx.imageSmoothingEnabled=false;
+    if(WORLD.state==='playing'&&WORLD.lamps.length===0)spawnLamps();
+  }
+  window.addEventListener('resize',resize,{passive:true});
+  resize();
+  function toggleScreen(which){
+    for(const [key,view] of Object.entries(screens))view.classList.toggle('hidden',which!==key);
+    const active=which===null;
+    hud.classList.toggle('hidden',!active);
+    bottomHint.classList.toggle('hidden',!active);
+  }
+  function showToast(message,sec=1.65){
+    WORLD.toastText=message;
+    WORLD.toastUntil=performance.now()+sec*1000;
+    feedback.textContent=message;
+    feedback.classList.add('visible');
+  }
+  function readClock(){
+    // Narrative clock, not the user's actual time: the evening progresses with lit lamps.
+    const minute=18*60+30+WORLD.score*5;
+    const hour=Math.floor(minute/60)%24;
+    return `${String(hour).padStart(2,'0')}:${String(minute%60).padStart(2,'0')}`;
+  }
+  function updateHud(){
+    scoreLabel.textContent=WORLD.score;
+    levelTag.textContent=`CALLE ${String(WORLD.level).padStart(2,'0')}`+(WORLD.demo?' · PRUEBA':sceneStage()==='pursuit'?' · SOMBRA':'');
+    clockLabel.textContent=readClock();
+  }
+  function clearParticles(){WORLD.particles.length=0;WORLD.sparks.length=0;}
+  function reset(){
+    WORLD.state='playing';WORLD.camera=0;WORLD.score=0;WORLD.level=1;WORLD.demo=false;
+    WORLD.walk=0;WORLD.visualTime=0;WORLD.lamps=[];WORLD.postCount=0;WORLD.lampSerial=0;WORLD.shadowPressure=0;WORLD.nextPost=WORLD.playerX+WORLD.W*.78;
+    WORLD.speed=43;WORLD.missed=null;WORLD.musicAt=performance.now()+2400;
+    clearParticles();spawnLamps();updateHud();toggleScreen(null);ensureAudio();
+    showToast('QUE EMPIECE EL PASEO ✦',1.65);
+  }
+  function showMenu(){
+    WORLD.state='menu';WORLD.camera=0;WORLD.walk=0;WORLD.lamps=[];
+    toggleScreen('menu');updateBestIntro();
+  }
+  function pause(){
+    if(WORLD.state!=='playing')return;
+    WORLD.state='paused';WORLD.pausedAt=performance.now();toggleScreen('pause');
+  }
+  function resume(){
+    if(WORLD.state!=='paused')return;
+    WORLD.state='playing';WORLD.musicAt=performance.now()+1400;
+    WORLD.lastFrame=performance.now();toggleScreen(null);
+  }
+  function gameOver(lamp){
+    if(WORLD.state!=='playing')return;
+    WORLD.state='over';WORLD.missed=lamp;
+    soundOnMiss();
+    if(!WORLD.demo){WORLD.best=Math.max(WORLD.best,WORLD.score);safeStorage.set('luces-luces-best',WORLD.best);}
+    el('finalScore').textContent=WORLD.score;
+    el('bestScore').textContent=WORLD.best;
+    toggleScreen('over');
+  }
+  function updateBestIntro(){
+    el('bestIntro').textContent=WORLD.best>0?`Tu mejor paseo: ${WORLD.best} farolas ✦`:'Tu noche comienza aquí';
+  }
+  function startPreview(level){
+    reset();
+    WORLD.demo=true;
+    WORLD.level=level;
+    WORLD.score=(level-1)*7;
+    WORLD.speed=Math.min(210,43+Math.min(110,(level-1)*7)+Math.min(57,Math.floor(Math.max(0,level-25)/3)));
+    WORLD.shadowPressure=level>=80&&level<100?.55:0;
+    WORLD.lamps=[];
+    WORLD.camera=0;
+    WORLD.postCount=level*13;
+    WORLD.lampSerial=level*59;
+    WORLD.nextPost=WORLD.playerX+WORLD.W*.77;
+    spawnLamps();updateHud();
+    showToast('PRUEBA CALLE '+level+' · NO CUENTA EN EL RÉCORD',3);
+  }
+  function changeSound(){
+    WORLD.sound=!WORLD.sound;
+    safeStorage.set('luces-luces-sound',WORLD.sound?'yes':'no');
+    el('menuSound').textContent=WORLD.sound?'♫ Sonido: sí':'♫ Sonido: no';
+    if(WORLD.sound){ensureAudio();tone(660,.25,.027);}
+  }
+  // Each street changes the *actual geometry*, not merely the name of the stage.
+  // The game is endless; after 100 the calm palette returns, but sudden overloads appear.
+  function surgeCount(level=WORLD.level){
+    if(level<100)return 0;
+    let active=false,sequence=0;
+    for(const point of [120,150,180,200]){
+      if(level>=point&&level<point+3){active=true;sequence=point;}
+    }
+    if(level>=230&&((level-230)%30)<3){active=true;sequence=230+Math.floor((level-230)/30)*30;}
+    if(!active)return 0;
+    return Math.min(20,15+Math.floor(Math.max(0,sequence-120)/30)*2+(sequence>=200?1:0));
+  }
+  function sceneStage(level=WORLD.level){
+    if(level>=100)return surgeCount(level)?'overload':'city-return';
+    if(level>=80)return 'pursuit';
+    if(level>=70)return 'cemetery';
+    if(level>=60)return 'madness';
+    if(level>=50)return 'abandoned';
+    if(level>=40)return 'multi-lamps';
+    if(level>=30)return 'uneven-lamps';
+    return 'evening';
+  }
+  function lampHeight(id,level){
+    if(level<30)return 0;
+    const max=level<40?110:level<50?120:level<60?142:level<70?164:level<80?172:level<100?196:level<120?40:115;
+    return Math.round((hash(id*11+413)*2-1)*max);
+  }
+  function postHeads(level,id){
+    if(level<40)return 1;
+    if(level<50)return id%3===0?3:id%2===0?2:1;
+    if(level<60)return 2+Math.floor(hash(id+92)*3); // 2–4
+    if(level<70)return 3+Math.floor(hash(id+39)*4); // 3–6
+    if(level<80)return 3+Math.floor(hash(id+39)*4); // 3–6
+    if(level<100)return 4+Math.floor(hash(id+147)*4); // 4–7
+    const surge=surgeCount(level);
+    if(surge&&id%3===0)return surge; // distinct 15–20 bulb "wall"
+    if(surge)return 2+Math.floor(hash(id+9)*3);
+    return id%5===0?3:id%3===0?2:1;
+  }
+  function spacingFor(level,count,id){
+    if(level<30)return clamp(215-level*4,146,215)+Math.floor(hash(id+91)*37)-18;
+    if(count>=15)return 260;
+    if(count>=4)return level>=80?257:270;
+    if(count>=2)return level>=100?214:238;
+    return 178+Math.round((hash(id+117)-.5)*32);
+  }
+  function createPost(x,level,id){
+    const count=postHeads(level,id);
+    const chaos=count>=15;
+    for(let i=0;i<count;i++){
+      const columns=chaos?5:count>=6?3:count===5?5:count===4?4:count===3?3:count===2?2:1;
+      const col=i%columns,row=Math.floor(i/columns);
+      const rows=Math.ceil(count/columns);
+      const headX=(col-(columns-1)/2)*(chaos?44:count>=6?65:count===5?46:count===4?53:count===3?73:106);
+      const offset=chaos?(row-(rows-1)/2)*60:(row-(rows-1)/2)*95;
+      let shift=lampHeight(id*3+i,level)+offset;
+      let kind='post';
+      if(chaos)kind=i%4===0?'hanging':i%3===0?'floating':'mutant';
+      else if(level>=50&&level<100){
+        const roll=hash(id*17+i*41+21);
+        kind=roll<.34?'hanging':roll<.63?'floating':roll<.85?'mutant':'post';
+      }else if(level>=30&&level<50 && count>1&&i===count-1&&id%4===0)kind='floating';
+      if(kind==='hanging')shift=Math.min(shift,-122-(i%3)*33);
+      else if(kind==='floating')shift=Math.max(-235,Math.min(105,shift));
+      else shift=Math.max(-235,Math.min(105,shift));
+      WORLD.lamps.push({
+        x,postId:id,index:WORLD.lampSerial++,slot:i,count,kind,
+        headX:Math.round(headX),heightShift:Math.round(shift),
+        lit:false,touchedAt:0,delay:hash(id*7+i*13)*6.28
+      });
+    }
+    return count;
+  }
+  function lampPosition(lamp){
+    const wx=lamp.x+lamp.headX-WORLD.camera;
+    let x=wx,y=WORLD.ground-144+lamp.heightShift;
+    if(lamp.kind==='hanging')y=Math.max(102,y);
+    else if(lamp.kind==='floating'){
+      const wobble=Math.sin(WORLD.visualTime*2.4+lamp.delay);
+      x+=wobble*18;
+      y+=Math.cos(WORLD.visualTime*3+lamp.delay)*12;
+      // Approaching floating lights drift upward just when the player tries to tap.
+      const closeness=clamp((WORLD.W*.78-wx)/(WORLD.W*.38),0,1);
+      y-=closeness*56;
+    }
+    return {x,y};
+  }
+  function spawnLamps(){
+    while(WORLD.nextPost<WORLD.camera+WORLD.W+340){
+      const id=WORLD.postCount++;
+      const count=createPost(WORLD.nextPost,WORLD.level,id);
+      WORLD.nextPost+=spacingFor(WORLD.level,count,id);
+    }
+    WORLD.lamps=WORLD.lamps.filter(l=>l.x+Math.max(0,l.headX)>WORLD.camera-210);
+  }
+  function activateLamp(lamp){
+    if(lamp.lit||WORLD.state!=='playing')return;
+    lamp.lit=true;lamp.touchedAt=performance.now();
+    WORLD.score+=1;
+    if(sceneStage()==='pursuit')WORLD.shadowPressure=Math.max(.05,WORLD.shadowPressure-.20);
+    soundOnLight();haptic();
+    for(let i=0;i<19;i++){
+      const a=i*2.39996,r=5+hash(i+WORLD.score*12)*28;
+      WORLD.sparks.push({x:WORLD.camera+lampPosition(lamp).x,y:lampPosition(lamp).y,vx:Math.cos(a)*r/2.5,vy:Math.sin(a)*r/2.5-8,life:1.05,ttl:1.05});
+    }
+    if(WORLD.score%7===0){
+      WORLD.level+=1;
+      // Continue growing after street 100, at a bounded touchscreen-friendly rate.
+      WORLD.speed=Math.min(210,43+Math.min(110,(WORLD.level-1)*7)+Math.min(57,Math.floor(Math.max(0,WORLD.level-25)/3)));
+      const message={
+        30:'LAS FAROLAS CRECEN Y SE HUNDEN',
+        40:'DOS Y TRES LUCES POR POSTE',
+        50:'LA CIUDAD HA EMPEZADO A CAMBIAR',
+        60:'¿ESTÁS SEGURO DE LO QUE VES?',
+        70:'EL PANTEÓN — NO MIRES ATRÁS',
+        80:'ALGO SE ARRASTRA DETRÁS DE TI',
+        100:'LA NOCHE VUELVE A SER TRANQUILA',
+        120:'SOBRECARGA DE LUCES',
+        150:'NO PODRÁS ENCENDERLAS TODAS',
+        180:'LAS LUCES SE MULTIPLICAN',
+        200:'20 LUCES · UN INSTANTE'
+      }[WORLD.level];
+      showToast(message?('CALLE '+WORLD.level+' · '+message):
+        ('CALLE '+String(WORLD.level).padStart(2,'0')+' · UN POCO MÁS RÁPIDO'),2.35);
+      soundOnLevel();
+    }else if(WORLD.score===1){showToast('LA PRIMERA LUZ ✦',1.3)}
+    else if(WORLD.score%4===0){showToast(['QUÉ BONITA NOCHE ✦','LA CALLE BRILLA ✦','SIGUE ASÍ ✦'][Math.floor(WORLD.score/4)%3],1.3)}
+    updateHud();
+  }
+  function tap(x,y){
+    if(WORLD.state!=='playing')return false;
+    let closest=null,best=Infinity;
+    for(const lamp of WORLD.lamps){
+      if(lamp.lit)continue;
+      const p=lampPosition(lamp);
+      const dx=Math.abs(x-p.x),dy=Math.abs(y-p.y);
+      // Preserve V1's generous, relaxing tap zone until street 30.
+      // From the uncanny streets onwards, touch the distinct moving heads.
+      const gentle=WORLD.level<30&&lamp.count===1&&lamp.kind==='post';
+      const radius=lamp.count>=15?26:lamp.count>=4?32:43;
+      const within=gentle?(dx<=45&&y>=p.y-62&&y<=WORLD.ground+30):
+        (dx<=radius&&dy<=radius);
+      if(within){
+        const distance=dx*dx+(gentle?dy*.10:dy)*(gentle?dy*.10:dy);
+        if(distance<best){best=distance;closest=lamp;}
+      }
+    }
+    if(closest){activateLamp(closest);return true;}
+    return false;
+  }
+  canvas.addEventListener('pointerdown',(e)=>{
+    e.preventDefault();const rect=canvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const x=(e.clientX-rect.left)*WORLD.W/rect.width;
+    const y=(e.clientY-rect.top)*WORLD.H/rect.height;
+    tap(x,y);
+  },{passive:false});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Escape'||e.key==='p'||e.key==='P'){
+      if(WORLD.state==='playing')pause();else if(WORLD.state==='paused')resume();
+      e.preventDefault();
+    }
+    if((e.key==='Enter'||e.key===' ')&&WORLD.state==='menu'){reset();e.preventDefault();}
+  });
+  window.LucesNative={pause};
+  el('startButton').addEventListener('click',reset);
+  el('againButton').addEventListener('click',reset);
+  el('pauseButton').addEventListener('click',pause);
+  el('resumeButton').addEventListener('click',resume);
+  el('restartFromPause').addEventListener('click',reset);
+  el('mainMenuButton').addEventListener('click',showMenu);
+  el('menuSound').addEventListener('click',changeSound);
+  el('previewButton').addEventListener('click',()=>toggleScreen('preview'));
+  el('previewBack').addEventListener('click',showMenu);
+  for(const l of [30,40,50,60,70,80,100,120,200]){
+    el('preview'+l).addEventListener('click',()=>startPreview(l));
+  }
+  el('menuSound').textContent=WORLD.sound?'♫ Sonido: sí':'♫ Sonido: no';
+  updateBestIntro();toggleScreen('menu');
+
+  const round=(v)=>Math.round(v);
+  const ground=()=>WORLD.ground;
+  function sky(){
+    const y=ground(),H=WORLD.H,W=WORLD.W;
+    const stage=sceneStage();
+    const haunted=['abandoned','madness','cemetery','pursuit'].includes(stage);
+    const palette={
+      evening:['#44354f','#76536e','#b77f7e'],
+      'uneven-lamps':['#393148','#625069','#9e777d'],
+      'multi-lamps':['#342e47','#51445c','#846579'],
+      abandoned:['#202437','#40384d','#746074'],
+      madness:['#10152b','#352a47','#77445a'],
+      cemetery:['#14192c','#2c3045','#59556b'],
+      pursuit:['#080c19','#211c32','#4c354d'],
+      'city-return':['#45435f','#86728b','#ba8c9a'],
+      overload:['#493d60','#806b89','#b88e9e']
+    }[stage];
+    const skyGradient=ctx.createLinearGradient(0,0,0,y);
+    skyGradient.addColorStop(0,palette[0]);skyGradient.addColorStop(.58,palette[1]);skyGradient.addColorStop(1,palette[2]);
+    rect(0,0,W,H,skyGradient);
+    // Color-shifting moon. Red halo begins with the abandonment;
+    // the familiar cream moon returns suddenly at street 100.
+    const mx=W*.79-(WORLD.camera*.01)%W,my=y*.31;
+    if(haunted){
+      const aura=ctx.createRadialGradient(mx,my,7,mx,my,78);
+      aura.addColorStop(0,stage==='pursuit'?'rgba(228,64,105,.34)':'rgba(191,92,115,.24)');
+      aura.addColorStop(1,'rgba(128,41,89,0)');
+      ctx.fillStyle=aura;ctx.fillRect(mx-80,my-80,160,160);
+      circle(mx,my,23,stage==='pursuit'?'#cf6c8a':'#cb9ca3');
+      circle(mx+9,my-9,23,palette[0]);
+      if(stage==='madness'||stage==='pursuit'){
+        line(mx-11,my-9,mx-1,my+14,2,'#65344c');
+        line(mx-1,my+14,mx+8,my+4,2,'#65344c');
+      }
+    }else{
+      circle(mx,my,20,'#f9d9ac');circle(mx+9,my-7,19,palette[0]);
+    }
+    // Stars gradually thin out, creating an unnatural empty sky.
+    const starAlpha=stage==='pursuit'?.16:haunted?.48:.82;
+    ctx.globalAlpha=starAlpha;
+    for(let i=0;i<75;i++){
+      const xx=hash(i*31+1)*W,yy=hash(i*21+3)*y*.68+23;
+      const blink=.25+(1+Math.sin(WORLD.visualTime*1.2+i*4))*.29;
+      rect(xx,yy,hash(i+23)>.88?2:1,1,'rgba(255,224,221,'+blink+')');
+    }
+    ctx.globalAlpha=1;
+    if(haunted){
+      // Dark clouds grow into silhouettes and reach over the street.
+      for(let i=-1;i<7;i++){
+        const xx=i*117-(WORLD.camera*.095)%117;
+        const yy=y*.12+hash(i+101)*y*.32;
+        const ink=stage==='pursuit'?'#131426':'#2e2b42';
+        ctx.globalAlpha=stage==='pursuit'?.90:.60;
+        rect(xx,yy,109,13,ink);rect(xx+21,yy-9,57,11,ink);
+        rect(xx+36,yy+12,82,8,ink);rect(xx+11,yy+21,39,5,ink);
+        ctx.globalAlpha=1;
+      }
+      // Slight flashes give the 80–99 sequence visible unease, without jump scares.
+      if(stage==='pursuit'&&Math.sin(WORLD.visualTime*1.65)>.992){
+        ctx.globalAlpha=.12;rect(0,0,W,y,'#d2bad6');ctx.globalAlpha=1;
+      }
+      // Crawling fog - thin enough to keep lamps visible.
+      for(let i=0;i<9;i++){
+        const xx=((i*123+WORLD.camera*.023)%(W+240))-120;
+        const yy=y*.65+(i%4)*18+Math.sin(WORLD.visualTime*.8+i)*5;
+        ctx.globalAlpha=.12;
+        rect(xx,yy,170,7,'#b7a2bd');rect(xx+31,yy+8,115,4,'#ded0dd');
+      }
+      ctx.globalAlpha=1;
+      if(stage==='madness'||stage==='pursuit'){
+        // Crooked distant tendrils hint that the world itself is distorting.
+        for(let i=0;i<5;i++){
+          const xx=(i*97-(WORLD.camera*.025)%97);
+          line(xx,0,xx+Math.sin(WORLD.visualTime*.5+i)*12,y*.22,2,'#2c283c');
+          rect(xx-2,y*.22,5,11,'#332c43');
+        }
+      }
+    }else{
+      for(let i=-1;i<7;i++){
+        const xx=i*124-(WORLD.camera*.065)%124;
+        const yy=55+hash(i+101)*y*.24;
+        ctx.globalAlpha=.16;
+        rect(xx,yy,67,4,'#f8c6bc');
+        rect(xx+16,yy-5,40,6,'#edd0d2');
+        rect(xx+37,yy+4,45,3,'#edb7bb');
+        ctx.globalAlpha=1;
+      }
+    }
+  }
+  function buildings(){
+    const W=WORLD.W,y=ground();
+    const farOffset=WORLD.camera*.16,step=75;
+    for(let i=Math.floor(farOffset/step)-2;i<Math.ceil((farOffset+W)/step)+2;i++){
+      const bx=round(i*step-farOffset),by=y-106-hash(i+13)*49;
+      const width=step+8;
+      const hue=['#62516b','#6b526c','#715c70','#74576e','#68566b'][Math.floor(hash(i+24)*5)];
+      rect(bx,by,width,y-by+10,hue);
+      rect(bx,by-3,width,5,'#584760');
+      if(hash(i+61)>.6){rect(bx+8,by-11,width-16,9,'#5d4964');rect(bx+18,by-16,width-36,5,'#52435f');}
+      for(let r=0;r<3;r++)for(let c=0;c<2;c++){
+        const wx=bx+13+c*30,wy=by+19+r*34;
+        rect(wx-2,wy-2,19,23,'#4d465b');
+        rect(wx,wy,15,19,hash(i*4+r*13+c*23)>.68?'#cba392':'#8b6b81');
+        rect(wx+7,wy,2,19,'#564659');rect(wx,wy+9,15,2,'#5f4d62');
+      }
+    }
+    const nearOffset=WORLD.camera*.36,nearStep=100;
+    for(let i=Math.floor(nearOffset/nearStep)-2;i<Math.ceil((nearOffset+W)/nearStep)+2;i++){
+      const x=round(i*nearStep-nearOffset),roof=y-99-hash(i+35)*51;
+      const hue=['#47415d','#514159','#514758','#4b4159'][Math.floor(hash(i*3+41)*4)];
+      rect(x,roof,nearStep+1,y-roof+20,hue);
+      rect(x,roof-4,nearStep+3,5,'#3a374f');
+      rect(x+3,roof+5,7,y-roof-10,'#58475e');
+      if(hash(i+44)>.7){rect(x+16,roof-10,65,7,'#4d3d58');rect(x+25,roof-16,37,7,'#3f3a54');}
+      const windowGlow=hash(i+76)>.45;
+      for(let floor=0;floor<2;floor++)for(let j=0;j<2;j++){
+        const wx=x+19+j*41,wy=roof+24+floor*39;
+        rect(wx-2,wy-3,24,30,'#37324a');
+        rect(wx,wy,20,25,windowGlow&&hash(i*13+floor*23+j)>.28?'#efb993':'#766178');
+        rect(wx+9,wy,2,25,'#453a50');rect(wx,wy+12,20,2,'#453a50');
+        rect(wx-3,wy+25,26,4,'#826879');
+      }
+      if(hash(i+37)>.67){
+        rect(x+37,y-38,35,38,'#37374d');rect(x+42,y-34,25,34,'#625169');
+        rect(x+46,y-19,3,7,'#d1ab8c');
+      }
+      rect(x,y-5,nearStep,7,'#3c394e');
+    }
+  }
+  function pavement(){
+    const y=ground(),W=WORLD.W,H=WORLD.H;
+    rect(0,y-4,W,18,'#938092');
+    rect(0,y+14,W,28,'#6c6374');
+    rect(0,y+40,W,H-y-40,'#3a3a52');
+    rect(0,y+39,W,6,'#aea0a2');
+    rect(0,y+46,W,2,'#595267');
+    for(let j=0;j<3;j++){
+      const off=(WORLD.camera*(j===0?1:.9))%(j===0?37:55);
+      for(let x=-60;x<W+65;x+=(j===0?37:55)){
+        const py=y+3+j*11;
+        line(x-off+j%2*15,py,x-off+j%2*15,py+10,1,'#5d5367');
+      }
+      line(0,y+12*j+1,W,y+12*j+1,1,'#857589');
+    }
+    // Road stripes drift with the walk.
+    const stripes=(WORLD.camera*.98)%190;
+    for(let x=-200;x<W+200;x+=190){rect(x-stripes,y+78,55,4,'#726879');}
+    for(let x=-150;x<W+150;x+=85){
+      const streetX=x-(WORLD.camera*.75)%85;
+      rect(streetX,y+120+hash(x+18)*14,1,2,'#565066');
+    }
+  }
+  function foregroundDetails(){
+    const y=ground(),W=WORLD.W,step=152,off=WORLD.camera*.94;
+    for(let i=Math.floor(off/step)-1;i<Math.ceil((off+W)/step)+2;i++){
+      const xx=round(i*step-off);
+      if(hash(i+30)>.42){
+        // Planters and roadside tufts.
+        rect(xx+13,y-11,21,13,'#6b4d5b');rect(xx+10,y-13,27,5,'#8d6871');
+        rect(xx+17,y-19,12,8,'#4e726c');
+        rect(xx+13,y-27,7,12,'#55746a');rect(xx+25,y-24,8,12,'#5b8a76');
+        if(hash(i+66)>.53){rect(xx+19,y-29,4,4,'#e9a3a0');rect(xx+29,y-25,4,4,'#e9b3a4');}
+      }else{
+        rect(xx+25,y-4,12,5,'#443e4d');rect(xx+30,y-7,3,4,'#7b5c6c');
+      }
+    }
+  }
+  function lampDraw(x,y,lit,index,animate,heightShift=0){
+    const foot=ground()+8,head=ground()-144+heightShift;
+    if(x<-100||x>WORLD.W+100)return;
+    ctx.save();
+    if(lit){
+      const alpha=.82+Math.sin(WORLD.visualTime*3+index)*.06;
+      const glow=ctx.createRadialGradient(x,head,2,x,head,95);
+      glow.addColorStop(0,`rgba(255,223,140,${.33*alpha})`);
+      glow.addColorStop(.48,`rgba(255,209,124,${.16*alpha})`);
+      glow.addColorStop(1,'rgba(255,196,130,0)');
+      ctx.fillStyle=glow;ctx.fillRect(x-100,head-98,200,196);
+      // Pixelated shards of illumination on the sidewalk.
+      ctx.globalAlpha=.20;
+      for(let layer=0;layer<5;layer++){
+        rect(x-29-layer*7,foot+layer*3,58+layer*14,3,'#fce3a6');
+      }
+      ctx.globalAlpha=1;
+    }
+    // A footed, vintage street lamp.
+    rect(x-10,foot-3,20,5,'#322e45');
+    rect(x-6,foot-14,12,14,'#4b4058');
+    rect(x-4,head+21,8,foot-head-32,'#403a54');
+    rect(x-2,head+24,3,foot-head-34,'#88758c');
+    rect(x-6,head+23,12,7,'#57485e');
+    rect(x-10,head+16,20,7,'#51445e');
+    rect(x-11,head+12,22,6,'#9a7b81');
+    rect(x-7,head-9,14,24,lit?'#ffdfa1':'#8b7584');
+    rect(x-10,head-12,20,4,'#3b334c');
+    rect(x-5,head-15,10,3,'#6c5566');
+    rect(x-13,head-16,26,5,'#44354d');
+    rect(x-11,head-20,22,4,'#a28a8b');
+    rect(x-6,head-24,12,4,'#453751');
+    rect(x-2,head-30,4,7,'#5a4963');
+    if(lit){
+      rect(x-4,head-6,8,13,'#fff1b8');rect(x-2,head-4,4,11,'#fffbd6');
+      rect(x-11,head+4,4,4,'#ffdc96');rect(x+7,head+4,4,4,'#ffdc96');
+      rect(x-6,head-15,12,2,'#f8d39c');
+      if(animate){rect(x-18,head-2,4,4,'#ffdc9c');rect(x+15,head+2,3,3,'#fff0ae');}
+    }else{
+      rect(x-3,head-3,6,11,'#7b6e7b');
+      rect(x-3,head+1,6,3,'#b49a96');
+    }
+    ctx.restore();
+  }
+  function doubleLampDraw(x,a,b){
+    if(x<-115||x>WORLD.W+115)return;
+    const foot=ground()+8;
+    const top=Math.min(ground()-144+a.heightShift,ground()-144+b.heightShift);
+    rect(x-10,foot-3,20,5,'#322e45');rect(x-6,foot-14,12,14,'#4b4058');
+    rect(x-4,top+15,8,foot-top-25,'#403a54');
+    rect(x-2,top+15,3,foot-top-26,'#97818d');
+    // Two curved iron arms join ONE central pole, two independent lights.
+    for(const head of [a,b]){
+      const hx=x+head.headX,hy=ground()-144+head.heightShift;
+      const lit=head.lit;
+      line(x,top+22,hx,hy+12,5,'#4b3b53');
+      line(x,top+19,hx,hy+10,2,'#9c7b87');
+      if(lit){
+        const glow=ctx.createRadialGradient(hx,hy,2,hx,hy,89);
+        glow.addColorStop(0,'rgba(255,227,151,.37)');
+        glow.addColorStop(.45,'rgba(255,211,135,.13)');
+        glow.addColorStop(1,'rgba(255,193,128,0)');
+        ctx.fillStyle=glow;ctx.fillRect(hx-90,hy-90,180,180);
+        ctx.globalAlpha=.14;
+        for(let i=0;i<4;i++)rect(hx-25-i*6,foot+3+i*2,50+i*12,3,'#ffdfa2');
+        ctx.globalAlpha=1;
+      }
+      rect(hx-9,hy-11,18,4,'#3a314b');
+      rect(hx-7,hy-7,14,21,lit?'#ffdfa1':'#8c7686');
+      rect(hx-5,hy-5,10,16,lit?'#fff1bd':'#615567');
+      if(lit)rect(hx-2,hy-4,4,13,'#fffbd6');
+      rect(hx-12,hy+14,24,5,'#47354d');
+      rect(hx-12,hy-15,24,4,'#6f586b');
+      rect(hx-6,hy-20,12,5,'#9f7f88');
+      rect(hx-2,hy-25,4,7,'#4d3b55');
+      if(lit&&performance.now()-head.touchedAt<450){
+        rect(hx-17,hy-3,3,3,'#ffe9aa');rect(hx+15,hy+2,3,3,'#fff5be');
+      }
+    }
+  }
+  function clusterLampDraw(group){
+    const visible=group.filter(l=>Math.abs(l.x-WORLD.camera)<WORLD.W+180);
+    if(!visible.length)return;
+    const center=group[0].x-WORLD.camera,foot=ground()+9;
+    const stage=sceneStage();
+    const haunted=['abandoned','madness','cemetery','pursuit'].includes(stage);
+    const hasPost=group.some(l=>l.kind==='post'||l.kind==='mutant');
+    let highest=ground()-144;
+    for(const lamp of group)highest=Math.min(highest,lampPosition(lamp).y);
+    if(hasPost){
+      // Deliberately crooked iron support, branching into up to seven heads.
+      rect(center-9,foot-4,18,6,'#28283d');
+      rect(center-5,foot-17,10,18,'#493b54');
+      const top=Math.max(82,highest+24);
+      line(center-3,foot-14,center+5,top+65,10,'#342d46');
+      line(center,foot-14,center+8,top+61,3,'#806579');
+      line(center+5,top+65,center-6,top,6,'#382d45');
+      rect(center-14,top-4,24,5,'#57435a');
+    }
+    if(group.length>=15){
+      // A literal wall of lanterns, intentionally overwhelming the player.
+      const left=Math.min(...group.map(l=>lampPosition(l).x))-25;
+      const right=Math.max(...group.map(l=>lampPosition(l).x))+25;
+      const top=Math.min(...group.map(l=>lampPosition(l).y))-37;
+      const bottom=Math.max(...group.map(l=>lampPosition(l).y))+31;
+      ctx.globalAlpha=.70;
+      rect(left-9,top,right-left+18,7,'#42344f');
+      rect(left-9,bottom,right-left+18,7,'#42344f');
+      for(let i=0;i<5;i++){
+        line(left-3+i*(right-left)/4,top,left+i*(right-left)/4,bottom,2,'#493448');
+      }
+      ctx.globalAlpha=1;
+      ctx.font='bold 12px monospace';ctx.fillStyle='#f7c4bd';ctx.textAlign='center';
+      ctx.fillText('SOBRECARGA',center,top-11);ctx.textAlign='left';
+    }
+    // Draw structures first, so the actual bulbs remain in the foreground.
+    for(const lamp of group){
+      const {x,y}=lampPosition(lamp);
+      if(lamp.kind==='hanging'){
+        // Descending from a crooked overhead wire.
+        const cableTop=Math.max(12,y-185-hash(lamp.index+45)*75);
+        line(x-22,cableTop-14,x+28,cableTop-7,4,'#32263f');
+        line(x+3,cableTop,x,y-22,3,'#4d3b59');
+        line(x+5,cableTop+10,x+2,y-25,1,'#aa7d99');
+        rect(x-4,cableTop-5,10,6,'#645268');
+      }else if(lamp.kind==='floating'){
+        const phase=WORLD.visualTime*2+lamp.delay;
+        ctx.globalAlpha=.35+.15*Math.sin(phase);
+        rect(x-29,y-7,7,3,'#ce9cb2');rect(x+26,y+1,6,3,'#cfa6c8');
+        rect(x-5,y+27,3,7,'#aa839f');
+        ctx.globalAlpha=1;
+      }else if(hasPost){
+        const crooked=lamp.kind==='mutant';
+        if(crooked){
+          line(center-6,highest+26,center+(lamp.slot%2?17:-16),y+36,4,'#4a3a55');
+          line(center+(lamp.slot%2?17:-16),y+36,x,y+17,4,'#57374f');
+        }else{
+          line(center,highest+28,x,y+17,5,'#493950');
+          line(center,highest+27,x,y+17,1,'#a37f8c');
+        }
+      }
+    }
+    // Individual, clearly separated bulbs, all requiring their own touch.
+    for(const lamp of group){
+      const {x,y}=lampPosition(lamp);
+      if(x<-70||x>WORLD.W+70)continue;
+      const lit=lamp.lit;
+      if(lit){
+        const aura=ctx.createRadialGradient(x,y,2,x,y,73);
+        aura.addColorStop(0,'rgba(255,235,166,.54)');
+        aura.addColorStop(.40,'rgba(255,214,145,.24)');
+        aura.addColorStop(1,'rgba(255,208,130,0)');
+        ctx.fillStyle=aura;ctx.fillRect(x-74,y-75,148,150);
+        ctx.globalAlpha=.17;
+        rect(x-35,foot+1,70,5,'#fff0ab');ctx.globalAlpha=1;
+      }else if(haunted){
+        ctx.globalAlpha=.35;
+        rect(x-12,y-15,24,32,'#854d78');ctx.globalAlpha=1;
+      }
+      const angular=haunted&&lamp.index%3===0;
+      const metal=angular?'#65425c':'#49354e';
+      // Lantern housing with pixel-art silhouette and visible inner wick.
+      rect(x-12,y-20,24,5,metal);
+      rect(x-17,y-25,34,5,'#2e293f');
+      rect(x-6,y-30,12,5,'#7d596b');
+      rect(x-2,y-36,4,7,'#44334c');
+      if(angular){
+        line(x-16,y-16,x-12,y+18,4,'#34273c');
+        line(x+15,y-17,x+8,y+19,4,'#34273c');
+      }
+      rect(x-10,y-15,20,31,'#2b293c');
+      rect(x-7,y-12,14,25,lit?'#ffde9a':'#776577');
+      rect(x-5,y-9,10,20,lit?'#ffeec1':'#52475f');
+      rect(x-2,y-6,4,16,lit?'#fffbe0':'#8f7c84');
+      rect(x-14,y+16,28,5,metal);
+      rect(x-11,y+21,22,4,'#8a697b');
+      rect(x-1,y+25,3,5,'#372d44');
+      if(lit&&performance.now()-lamp.touchedAt<420){
+        rect(x-23,y-5,5,5,'#ffdf9f');rect(x+19,y-12,4,4,'#fff6ce');
+      }
+    }
+  }
+  function abandonedScenery(){
+    const y=ground(),W=WORLD.W,off=WORLD.camera*.44;
+    // Muted deserted storefronts, shuttered windows and crooked signboards.
+    ctx.globalAlpha=.33;rect(0,y-210,W,214,'#16182a');ctx.globalAlpha=1;
+    for(let i=Math.floor(off/210)-1;i<Math.ceil((off+W)/210)+2;i++){
+      const x=i*210-off,roof=y-80-hash(i+83)*45;
+      rect(x+14,roof,71,y-roof,'#353347');
+      rect(x+18,roof-5,76,6,'#25293d');
+      rect(x+25,roof+23,44,37,'#27283d');
+      for(let j=0;j<3;j++)line(x+30+j*13,roof+28,x+30+j*13,roof+58,2,'#675469');
+      rect(x+24,roof+64,62,4,'#514253');
+      rect(x+28,roof+75,45,31,'#2a2a40');
+      line(x+28,roof+75,x+72,roof+106,3,'#776173');
+      line(x+72,roof+75,x+28,roof+106,2,'#776173');
+      // Bare branches remain atmospheric rather than concealing the farolas.
+      const tree=x+130,base=y-4;
+      line(tree,base,tree+4,base-83,6,'#303142');
+      line(tree+4,base-60,tree-21,base-92,3,'#303142');
+      line(tree+4,base-62,tree+24,base-103,3,'#303142');
+      line(tree-10,base-79,tree-29,base-86,2,'#303142');
+      line(tree+17,base-88,tree+31,base-96,2,'#303142');
+      // Shattered sign, a window that seems to watch back and crawling ivy.
+      if(i%3===0){
+        rect(x+19,roof-22,61,14,'#272337');
+        line(x+19,roof-22,x+80,roof-9,2,'#6d4b66');
+        rect(x+32,roof-16,3,5,'#b6738c');
+        rect(x+54,roof-15,3,5,'#b6738c');
+      }
+      if(i%4===1){
+        rect(x+50,roof+48,4,3,'#ad6387');rect(x+61,roof+48,4,3,'#ad6387');
+      }
+      for(let k=0;k<6;k++){
+        const xx=x+18+k*11;
+        line(xx,roof+hash(k+i*5)*12,xx+(k%2?8:-9),roof+23+hash(k+i)*17,2,'#272b37');
+      }
+    }
+    // Repeated broken pavement and grass under dark boarded buildings.
+    const roadOff=WORLD.camera*.91;
+    for(let i=Math.floor(roadOff/62)-1;i<Math.ceil((roadOff+W)/62)+2;i++){
+      const xx=i*62-roadOff;
+      rect(xx,y-19,25,3,'#4c4052');
+      line(xx+18,y-23,xx+38,y-9,2,'#282736');
+      line(xx+38,y-9,xx+29,y+2,2,'#282736');
+    }
+  }
+  function cemeteryScenery(){
+    const W=WORLD.W,y=ground(),off=WORLD.camera*.50;
+    // Hills and cemetery grounds behind the wrought-iron fence.
+    rect(0,y-105,W,115,'#39394d');
+    const strips=[['#414358',-130],['#363a4e',-99],['#303349',-64]];
+    for(const pair of strips){
+      const color=pair[0],base=y+pair[1];
+      for(let j=-1;j<Math.ceil(W/65)+2;j++){
+        const x=j*65-(off*.28)%65;
+        rect(x,base+hash(j+123)*15,68,y-base,color);
+      }
+    }
+    for(let i=Math.floor(off/83)-2;i<Math.ceil((off+W)/83)+2;i++){
+      const x=Math.round(i*83-off),tone=hash(i+12);
+      // Old gravestones visible BEHIND the fence, no graphic horror.
+      const gy=y-36-hash(i+74)*15;
+      rect(x-14,gy,28,32,tone>.5?'#777087':'#68667c');
+      rect(x-12,gy-8,24,10,tone>.5?'#777087':'#68667c');
+      rect(x-15,gy+27,30,5,'#4b495d');
+      rect(x-4,gy+12,8,2,'#4a485f');
+      if(i%3===0){
+        line(x+36,y-12,x+37,y-112,7,'#2a2e41');
+        line(x+37,y-89,x+18,y-110,3,'#2a2e41');
+        line(x+37,y-86,x+56,y-119,3,'#2a2e41');
+      }
+    }
+    // Fence line uses thin bars so it stays visually subordinate to lamp heads.
+    rect(0,y-49,W,4,'#2a293c');rect(0,y-14,W,4,'#2c2b40');
+    for(let i=-1;i<Math.ceil(W/18)+2;i++){
+      const x=Math.round(i*18-(WORLD.camera*.94)%18);
+      rect(x,y-64,3,53,'#262a40');rect(x-2,y-67,7,5,'#36344c');
+    }
+    // Passing old entrance arch marks the "outside a cemetery" setting.
+    const archShift=(WORLD.camera*.67)%740;
+    const archX=Math.round(W*.65-archShift+160);
+    if(archX>-150&&archX<W+150){
+      rect(archX-69,y-125,15,116,'#323548');rect(archX+53,y-125,15,116,'#323548');
+      rect(archX-78,y-134,154,12,'#4c485d');rect(archX-70,y-144,138,12,'#555067');
+      rect(archX-64,y-155,126,12,'#35364c');
+      ctx.fillStyle='#b6abc2';ctx.font='bold 10px monospace';ctx.textAlign='center';
+      ctx.fillText('PANTEÓN',archX,y-137);ctx.textAlign='left';
+    }
+  }
+  function cemeteryForeground(){
+    const y=ground(),off=WORLD.camera*.91,W=WORLD.W;
+    for(let i=Math.floor(off/62)-1;i<Math.ceil((off+W)/62)+2;i++){
+      const x=Math.round(i*62-off);
+      rect(x,y-7,3,10,'#555166');rect(x+5,y-11,2,10,'#616073');
+      if(i%5===0){rect(x-5,y-3,20,4,'#4f485d');}
+    }
+    ctx.globalAlpha=.11;
+    for(let j=0;j<4;j++){
+      const x=(j*150-(WORLD.camera*.015)%150);
+      rect(x,y-90+j*15,145,6,'#ccbecf');
+    }
+    ctx.globalAlpha=1;
+  }
+  function crawlingShadow(){
+    if(sceneStage()!=='pursuit'||WORLD.state==='menu')return;
+    const y=ground()+10;
+    // Always inside the viewport and visibly behind the character.
+    // It can *never* overtake the player: missing a light is the only way to lose.
+    const pressure=WORLD.shadowPressure;
+    const x=WORLD.playerX-70+pressure*44;
+    const pulse=Math.sin(WORLD.visualTime*9)*3;
+    const reach=Math.sin(WORLD.visualTime*5+1)*9;
+    const crawl=Math.sin(WORLD.visualTime*6)*4;
+    // Large dark trail connects the entity to the left edge of the screen.
+    const trail=ctx.createLinearGradient(-20,0,x+65,0);
+    trail.addColorStop(0,'rgba(3,3,13,.92)');
+    trail.addColorStop(.7,'rgba(9,6,22,.84)');
+    trail.addColorStop(1,'rgba(21,9,31,0)');
+    ctx.fillStyle=trail;ctx.fillRect(0,y-39,x+67,55);
+    for(let i=0;i<13;i++){
+      const sx=x-110+i*9,dy=7*Math.sin(WORLD.visualTime*4+i*.55);
+      rect(sx,y-5+dy,19,3,'#080915');
+    }
+    // A clear black crawling figure with visible head, arms and violet eyes.
+    const glow=ctx.createRadialGradient(x,y-31,5,x,y-31,78);
+    glow.addColorStop(0,'rgba(121,49,127,.25)');
+    glow.addColorStop(1,'rgba(37,19,65,0)');
+    ctx.fillStyle=glow;ctx.fillRect(x-85,y-115,170,135);
+    // Bent spine and heavy body of the thing.
+    rect(x-55,y-25+crawl,63,25,'#080812');
+    rect(x-36,y-42+crawl,47,22,'#090917');
+    rect(x-17,y-62+pulse,31,25,'#080916');
+    rect(x-8,y-73+pulse,24,17,'#0b0a18');
+    rect(x-11,y-76+pulse,10,9,'#100d20');
+    // Long hooked arms crawl towards the character.
+    line(x-27,y-27,x-40,y+9+reach,7,'#070714');
+    line(x-40,y+9+reach,x-53,y+17,5,'#080714');
+    line(x+4,y-31,x+35,y+1-reach,8,'#080815');
+    line(x+35,y+1-reach,x+52,y+11,5,'#080813');
+    for(let j=0;j<4;j++){
+      line(x+48-j*6,y+9,x+58-j*7,y+17+2*Math.sin(WORLD.visualTime*6+j),2,'#130b1c');
+    }
+    // Two bright points keep the creature recognizable on dark phones.
+    rect(x+2,y-65+pulse,6,4,'#e8a3dc');
+    rect(x+11,y-64+pulse,4,4,'#f8bedf');
+    rect(x+4,y-64+pulse,2,2,'#fff0f2');
+    // Distinct moving silhouette/rim light against asphalt.
+    line(x-45,y-26,x-11,y-42,2,'#3b2b46');
+    line(x+15,y-52,x+17,y-61,2,'#63426b');
+    rect(x+30,y+1,22,2,'#49344c');
+  }
+  function playerDraw(){
+    const x=WORLD.playerX,y=ground()+12;
+    const walking=WORLD.state==='playing';
+    const step=walking?Math.sin(WORLD.walk*12):0;
+    const s=2.1;
+    const px=(xx,yy,w,h,color)=>rect(x+xx*s,y+yy*s,w*s,h*s,color);
+    // Character shadow, one foot ahead of the other as the walk loops.
+    ctx.globalAlpha=.34;rect(x-15,y+2,36,5,'#1d2237');ctx.globalAlpha=1;
+    const leg=step>0?2:0;
+    px(-6,-7+leg,5,8,'#39354f');px(3,-7+(step>0?0:2),5,8,'#39354f');
+    px(-7,-1+leg,6,3,'#272c3e');px(3,-1+(step>0?0:2),6,3,'#272c3e');
+    px(-8,-20,17,15,'#342f4a');px(-6,-20,14,14,'#b68b9a');
+    px(-7,-19,3,10,'#d0a0a5');px(3,-19,3,11,'#a4778b');
+    px(8,-18,4,9,'#6d5a75');
+    px(10,-14,3,3,'#e9b7a0');
+    px(-7,-20,15,4,'#d7ad9b');px(-4,-19,9,2,'#e9c2a0');
+    px(-4,-32,9,12,'#4c3b4f'); // hair outline
+    px(-3,-30,8,10,'#efb5a0');
+    px(3,-27,2,2,'#333044'); // eye
+    px(-7,-31,13,5,'#44344f'); // hat
+    px(-9,-29,17,3,'#5c465a');
+    px(-6,-25,3,3,'#513b4f');
+    px(-5,-21,13,3,'#f0d0a8');px(-3,-18,9,3,'#d8a38f'); // scarf
+    const armSwing=step>0?1:-1;
+    px(-11,-18+armSwing,4,10,'#a57687');px(-10,-9+armSwing,3,2,'#efb5a0');
+    // Little satchel hanging at the back.
+    px(-12,-14,5,8,'#92726f');px(-11,-12,3,4,'#d0a681');
+  }
+  function particles(dt){
+    WORLD.sparks=WORLD.sparks.filter(p=>p.life>0);
+    for(const p of WORLD.sparks){
+      p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=8*dt;
+      const sx=p.x-WORLD.camera;
+      ctx.globalAlpha=clamp(p.life/p.ttl,0,1);
+      rect(sx,p.y,p.life>.6?3:2,p.life>.6?3:2,'#ffe4a9');
+    }
+    ctx.globalAlpha=1;
+    // Slow evening pollen motes, spatially tied to world coordinates.
+    for(let i=0;i<21;i++){
+      const x=(hash(i*31+23)*WORLD.W+WORLD.visualTime*(i%3+2))%(WORLD.W+30)-15;
+      const y=ground()-110+hash(i*57+11)*170;
+      ctx.globalAlpha=.16+hash(i+7)*.26;
+      rect(x,y+Math.sin(WORLD.visualTime+i)*5,2,2,'#f8e0b2');
+    }
+    ctx.globalAlpha=1;
+  }
+  function nightmareVignette(){
+    const stage=sceneStage();
+    if(!['abandoned','madness','cemetery','pursuit'].includes(stage))return;
+    const W=WORLD.W,H=WORLD.H;
+    const dark=stage==='pursuit'?.80:stage==='madness'?.68:stage==='cemetery'?.68:.48;
+    const vignette=ctx.createRadialGradient(W*.5,H*.48,W*.18,W*.5,H*.48,W*.78);
+    vignette.addColorStop(0,'rgba(4,5,16,0)');
+    vignette.addColorStop(.63,'rgba(5,4,14,.12)');
+    vignette.addColorStop(1,'rgba(6,3,14,'+dark+')');
+    ctx.fillStyle=vignette;ctx.fillRect(0,0,W,H);
+    if(stage==='pursuit'&&Math.sin(WORLD.visualTime*1.91)>.975){
+      // Tiny restrained signal glitch, no jump scare or strobing.
+      ctx.globalAlpha=.24;
+      rect(0,H*.25,W,2,'#af6b98');
+      rect(0,H*.62,W,3,'#6d476d');
+      ctx.globalAlpha=1;
+    }
+  }
+  function render(dt){
+    const stage=sceneStage();
+    sky();
+    if(stage==='cemetery'||stage==='pursuit'){
+      cemeteryScenery();pavement();cemeteryForeground();
+    }else if(['abandoned','madness'].includes(stage)){
+      abandonedScenery();pavement();
+    }else{
+      buildings();pavement();foregroundDetails();
+    }
+    nightmareVignette();
+    if(WORLD.state==='menu'){
+      lampDraw(WORLD.W*.17,0,true,1,false);
+      lampDraw(WORLD.W*.87,0,true,2,false);
+    }else{
+      // Group lamps per physical structure, including walls of 20 lights.
+      const groups=new Map();
+      for(const lamp of WORLD.lamps){
+        if(!groups.has(lamp.postId))groups.set(lamp.postId,[]);
+        groups.get(lamp.postId).push(lamp);
+      }
+      for(const group of groups.values()){
+        const lamp=group[0],x=lamp.x-WORLD.camera;
+        if(x<-180||x>WORLD.W+180)continue;
+        if(group.length===1&&lamp.kind==='post'){
+          lampDraw(x,0,lamp.lit,lamp.index,(performance.now()-lamp.touchedAt)<500,lamp.heightShift);
+        }else clusterLampDraw(group);
+      }
+    }
+    crawlingShadow();
+    playerDraw();
+    particles(dt);
+  }
+  function frame(ms){
+    if(!WORLD.lastFrame)WORLD.lastFrame=ms;
+    const dt=clamp((ms-WORLD.lastFrame)/1000,0,.045);
+    WORLD.lastFrame=ms;
+    if(WORLD.state==='playing'){
+      WORLD.camera+=WORLD.speed*dt;
+      WORLD.walk+=dt;
+      WORLD.visualTime+=dt;
+      spawnLamps();
+      ambient(ms);
+      if(sceneStage()==='pursuit')WORLD.shadowPressure=clamp(WORLD.shadowPressure+dt*.26,.14,.96);
+      else WORLD.shadowPressure=Math.max(0,WORLD.shadowPressure-dt*.45);
+      for(const lamp of WORLD.lamps){
+        if(!lamp.lit&&lamp.x+lamp.headX-WORLD.camera<WORLD.playerX-18){gameOver(lamp);break;}
+      }
+    }else if(WORLD.state==='menu'){
+      WORLD.visualTime+=dt*.35;
+    }
+    if(WORLD.toastUntil<ms)feedback.classList.remove('visible');
+    render(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  // Simple non-mutating diagnostics for game testing and QA.
+  Object.defineProperty(window,'LucesStatus',{get(){return Object.freeze({
+    state:WORLD.state,score:WORLD.score,level:WORLD.level,stage:sceneStage(),best:WORLD.best,shadowPressure:WORLD.shadowPressure,speed:WORLD.speed,
+    lamps:WORLD.lamps.map(l=>({x:Math.round(l.x-WORLD.camera),lit:l.lit,index:l.index,postId:l.postId,double:l.double,headX:l.headX,heightShift:l.heightShift})),
+    playerX:WORLD.playerX,ground:WORLD.ground,W:WORLD.W,H:WORLD.H,clock:readClock()
+  });}});
+})();
+
+</script>
+</body>
+</html>
