@@ -25,6 +25,8 @@ jobs:
         run: |
           mkdir -p public
           cp index.html public/index.html
+          test -s anexado-en-el-amor/index.html
+          cp -R anexado-en-el-amor public/anexado-en-el-amor
           touch public/.nojekyll
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
